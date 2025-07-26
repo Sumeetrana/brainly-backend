@@ -2,8 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 
 import { UserModel } from "./db";
-
-const JWT_SECRET = "S3cret";
+import { JWT_SECRET } from "./config";
 
 const app = express();
 
