@@ -1,8 +1,9 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 
-import { UserModel } from "./db";
+import { ContentModel, UserModel } from "./db";
 import { JWT_SECRET } from "./config";
+import { userMiddlerware } from "./middleware";
 
 const app = express();
 
@@ -53,13 +54,48 @@ app.post("/api/v1/signin", async (req, res) => {
   }
 });
 
-app.get("/api/v1/content", (req, res) => {
-  const { type, link } = req.body;
+app.get("/api/v1/content", userMiddlerware, async (req, res) => {
+  // @ts-ignore
+  const userId = req.userId;
+  const content = await ContentModel.find({
+    userId,
+  }).populate("userId", "username");
+
+  if (content) {
+    res.json({
+      content,
+    });
+  }
 });
 
-app.post("/api/v1/content", (req, res) => {});
+app.post("/api/v1/content", userMiddlerware, async (req, res) => {
+  const { type, link } = req.body;
+  await ContentModel.create({
+    link,
+    type,
+    // @ts-ignore
+    userId: req.userId,
+    tags: [],
+  });
 
-app.delete("/api/v1/content", (req, res) => {});
+  res.json({
+    message: "Content created",
+  });
+});
+
+app.delete("/api/v1/content", userMiddlerware, async (req, res) => {
+  const contentId = req.body.contentId;
+
+  await ContentModel.deleteOne({
+    _id: contentId,
+    // @ts-ignore
+    userId: req.userId,
+  });
+
+  res.json({
+    message: "Deleted",
+  });
+});
 
 app.post("/api/v1/brain/share", (req, res) => {});
 

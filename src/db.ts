@@ -13,10 +13,10 @@ const ContentSchema = new Schema({
   title: String,
   link: String,
   tags: [{ type: Types.ObjectId, ref: "Tag" }],
-  userId: { type: Types.ObjectId, ref: "User", required: true },
+  userId: { type: Types.ObjectId, ref: "users", required: true },
 });
 
 const UserModel = model("users", UserSchema);
 const ContentModel = model("content", ContentSchema);
 
-export { UserModel };
+export { UserModel, ContentModel };
